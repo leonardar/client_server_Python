@@ -30,8 +30,8 @@ def server_port():
         print(sys.argv)
         return listen_port
 
-    except IndexError:
-        print('После параметра -\'p\' необходимо указать номер порта.')
+    # except IndexError:
+    #     print('После параметра -\'p\' необходимо указать номер порта.')
         # sys.exit(1)
     except ValueError:
         print(
@@ -45,10 +45,12 @@ def server_adress():
         else:
             listen_address = ''
         return listen_address
-
-    except IndexError:
+    except ValueError:
         print(
-            'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
+            'В качастве порта может быть указано только число в диапазоне от 1024 до 65535.')
+
+    #     print(
+    #         'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
         # sys.exit(1)
 
 

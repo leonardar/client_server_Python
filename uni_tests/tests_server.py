@@ -12,7 +12,6 @@ except ImportError:
 
 server = Server()
 
-
 class TestServer(unittest.TestCase):
 
     server_error = {
@@ -27,14 +26,15 @@ class TestServer(unittest.TestCase):
         self.assertFalse(port_number < 1024 or port_number > 65535)
 
     def test_check_port_args(self):
-        testargs = ['/Users/leonarda_rain/PycharmProjects/python_client_server/server.py', '-p']
+        testargs = ['../server.py', '-p']
         with patch.object(sys, 'argv', testargs):
             self.assertRaises(IndexError, server_port)
 
     def test_check_adress_args(self):
-        testargs = ['/Users/leonarda_rain/PycharmProjects/python_client_server/server.py', '-a']
-        with patch.object(sys, 'argv', testargs):
-            self.assertRaises(IndexError, server_adress)
+        testargs = ['../server.py', '-a']
+        with self.assertRaises(IndexError):
+            with patch.object(sys, 'argv', testargs):
+                server_adress()
 
     def test_content_message(self):
         self.assertEqual(server.client_message_handler(
@@ -66,7 +66,6 @@ class TestServer(unittest.TestCase):
     def test_unknown_user(self):
         self.assertEqual(server.client_message_handler(
             {ACTION: PRESENCE, TIME: 1.1, USER: {ACCOUNT_NAME: 'Guest1'}}), self.server_error)
-
 
 if __name__ == '__main__':
     unittest.main()
