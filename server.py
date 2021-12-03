@@ -1,5 +1,5 @@
 # Программа-сервер
-
+import logging
 import socket
 import sys
 import json
@@ -8,6 +8,7 @@ from common.variables import ACTION, ACCOUNT_NAME, RESPONSE, MAX_CONNECTIONS, \
 from common.utils import get_message, send_message
 from socket import SOL_SOCKET,SO_REUSEADDR
 
+SERVER_LOGGER = logging.getLogger('server')
 
 class Server:
     def client_message_handler(self,message):
@@ -26,15 +27,14 @@ def server_port():
         else:
             listen_port = DEFAULT_PORT
         if listen_port < 1024 or listen_port > 65535:
-            raise ValueError
-        print(sys.argv)
+            SERVER_LOGGER.critical(
+                f'Неверный номер порта:{server_port}.В качестве порта может быть указано только число в диапазоне от 1024 до 65535.')
+        SERVER_LOGGER.info(f'Получен серверный порт.')
         return listen_port
 
-    # except IndexError:
-    #     print('После параметра -\'p\' необходимо указать номер порта.')
-        # sys.exit(1)
+
     except ValueError:
-        print(
+        SERVER_LOGGER.critical(
             'В качастве порта может быть указано только число в диапазоне от 1024 до 65535.')
         # sys.exit(1)
 
@@ -44,14 +44,10 @@ def server_adress():
             listen_address = sys.argv[sys.argv.index('-a') + 1]
         else:
             listen_address = ''
+        SERVER_LOGGER.info(f'Получен серверный адрес. Если не указан,принимаются соединения с любых адресов.')
         return listen_address
     except ValueError:
-        print(
-            'В качастве порта может быть указано только число в диапазоне от 1024 до 65535.')
-
-    #     print(
-    #         'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
-        # sys.exit(1)
+        SERVER_LOGGER.critical('В качастве порта может быть указано только число в диапазоне от 1024 до 65535.')
 
 
 def main():
@@ -74,20 +70,25 @@ def main():
 
     while True:
         client, client_address = transport.accept()
+        SERVER_LOGGER.info(f'Установлено соедение с ПК {client_address}')
         try:
-            message_from_cient = get_message(client)
-            print(message_from_cient)
-            response = server.client_message_handler(message_from_cient)
+            message_from_client = get_message(client)
+            SERVER_LOGGER.debug(f'Получено сообщение от клиента: {message_from_client}')
+            response = server.client_message_handler(message_from_client)
             send_message(client, response)
+            SERVER_LOGGER.info(f' Отправление ответа клиенту {response}')
+            SERVER_LOGGER.debug(f'Соединение с клиентом {client_address} закрывается.')
             client.close()
-        except (ValueError, json.JSONDecodeError):
-            print('Принято некорретное сообщение от клиента.')
+        except json.JSONDecodeError:
+            SERVER_LOGGER.error(f'Не удалось декодировать сообщение, полученную от '
+                                f'клиента {client_address}. Соединение закрывается.')
+            client.close()
+        except ValueError:
+            SERVER_LOGGER.error(f'От клиента {client_address} приняты некорректные данные. '
+                                f'Соединение закрывается.')
             client.close()
 
 
 if __name__ == '__main__':
     main()
 
-
-def process_client_message():
-    return None
