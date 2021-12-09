@@ -2,7 +2,10 @@
 
 import json
 from common.variables import MAX_PACKAGE_LENGTH, ENCODING
+from decorator_log import log_func_decorator
 
+
+@log_func_decorator
 def get_message(client):
     '''
     Утилита приёма и декодирования сообщения
@@ -20,7 +23,7 @@ def get_message(client):
         raise ValueError
     raise ValueError
 
-
+@log_func_decorator
 def send_message(sock, message):
     '''
     Утилита кодирования и отправки сообщения

@@ -9,6 +9,8 @@ import log.client_log_config
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
 from common.utils import get_message, send_message
+from decorator_log import log_class_decorator, log_func_decorator
+
 try:
     # python 3.4+ should use builtin unittest.mock not mock package
     from unittest.mock import patch
@@ -17,6 +19,7 @@ except ImportError:
 
 CLIENT_LOGGER = logging.getLogger('client')
 
+@log_class_decorator
 class Client():
     data_to_server = {
         ACTION: PRESENCE,
@@ -26,7 +29,8 @@ class Client():
         }
     }
 
-    def check_response(self, message):
+    @classmethod
+    def check_response(cls, message):
         CLIENT_LOGGER.debug(f'Разбор сообщения от сервера: {message}')
         if RESPONSE in message:
             if message[RESPONSE] == 200:
@@ -34,6 +38,7 @@ class Client():
             return (f'400 : {message[ERROR]}')
         raise ValueError
 
+@log_func_decorator
 def check_port():
     try:
         # print(sys.argv)
@@ -49,6 +54,7 @@ def check_port():
         server_port = DEFAULT_PORT
         CLIENT_LOGGER.info(f'Клиент успешно запущен : адрес сервера: {server_address} , порт: {server_port}')
     return [server_address,server_port]
+
 
 def main():
     print(CLIENT_LOGGER.level)

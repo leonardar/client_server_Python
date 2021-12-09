@@ -9,9 +9,13 @@ from common.variables import ACTION, ACCOUNT_NAME, RESPONSE, MAX_CONNECTIONS, \
 from common.utils import get_message, send_message
 from socket import SOL_SOCKET,SO_REUSEADDR
 
+from decorator_log import log_class_decorator, log_func_decorator
+
 SERVER_LOGGER = logging.getLogger('server')
 
+@log_class_decorator
 class Server:
+    @classmethod
     def client_message_handler(self,message):
         if ACTION in message and message[ACTION] == PRESENCE and TIME in message \
                 and USER in message and message[USER][ACCOUNT_NAME] == 'Guest':
@@ -21,6 +25,7 @@ class Server:
             ERROR: 'Bad Request'
         }
 
+@log_func_decorator
 def server_port():
     try:
         if '-p' in sys.argv:
@@ -39,6 +44,7 @@ def server_port():
             'В качастве порта может быть указано только число в диапазоне от 1024 до 65535.')
         # sys.exit(1)
 
+@log_func_decorator
 def server_adress():
     try:
         if '-a' in sys.argv:
